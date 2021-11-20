@@ -38,7 +38,7 @@ def month_calculation(start_month, start_year, end_month, end_year):
     year_difference = int(end_year) - int(start_year)
     if year_difference < 0:
         year_difference = 0
-    return year_difference * 12 + int(end_month - start_month)
+    return year_difference * 12 + int(end_month) - int (start_month)
 
 
 def product_lister(dict_list):
@@ -108,12 +108,12 @@ def product_cleaner(product_dictionary):
     return output_product_dictionary
 
 
-def excel_output(product_dictionary):
-    filename = "output" + ".xlsx"
+def excel_output(product_dictionary, month, year):
+    filename = "sales-" + month + year + ".xlsx"
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    sheet.title = "Monthly Output"
-    sheet['A1'] = "Monthly Output"
+    sheet.title = f"Monthly Sales Report {month}{year}"
+    sheet['A1'] = f"Monthly Sales Report {month}/{year}"
     sheet['A1'].font = Font(size=16, bold=True)
     for cell in ["A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3", "I3", "J3", "K3", "L3", "M3", "N3", "A60", "F60",
                  "G60", "N60", "O3", "P3", "Q3", "R3", "S3", "O60", "P60", "Q60", "R60", "S60"]:
@@ -186,7 +186,9 @@ def excel_output(product_dictionary):
         excel_row += 1
         profit = float(float(product_dictionary[product].total_revenue) - float(product_dictionary[product].cost))
         month_differential = month_calculation(int(product_dictionary[product].release_month),
-                                               int(product_dictionary[product].release_year), 11, 2021)
+                                               int(product_dictionary[product].release_year), int(month), int(year))
+        if month_differential < 0:
+            month_differential = 1
         if month_differential > 0:
             monthly_sales = product_dictionary[product].total_count / month_differential
             if profit < 0:
@@ -223,10 +225,16 @@ def excel_output(product_dictionary):
         sheet.cell(row=excel_row, column=7).value = float(product_dictionary[product].monthly_revenue)
         sheet.cell(row=excel_row, column=8).value = int(product_dictionary[product].release_year)
         sheet.cell(row=excel_row, column=9).value = int(product_dictionary[product].release_month)
-        sheet.cell(row=excel_row, column=10).value = month_differential
-        sheet.cell(row=excel_row, column=11).value = profit
-        sheet.cell(row=excel_row, column=12).value = monthly_sales
-        sheet.cell(row=excel_row, column=13).value = monthly_profit
+        if int(year) < int(product_dictionary[product].release_year):
+            month_differential = "-"
+            sheet.cell(row=excel_row, column=10).value = "-"
+            sheet.cell(row=excel_row, column=13).value = "-"
+            sheet.cell(row=excel_row, column=11).value = "-"
+        else:
+            sheet.cell(row=excel_row, column=10).value = month_differential
+            sheet.cell(row=excel_row, column=12).value = monthly_sales
+            sheet.cell(row=excel_row, column=13).value = monthly_profit
+            sheet.cell(row=excel_row, column=11).value = profit
         sheet.cell(row=excel_row, column=14).value = owners_share
         sheet.cell(row=excel_row, column=15).value = richard_royalties
         sheet.cell(row=excel_row, column=16).value = josh_royalties
@@ -237,6 +245,10 @@ def excel_output(product_dictionary):
 
 
 if __name__ == '__main__':
+    date_month = input("Please input the current month (MM)")
+    date_year = input("Please input the current year (YYYY)")
+    current_date_1 = date_year + "-" + date_month
+    current_date_2 = date_month + "/" + date_year
     with open("dtrpg-report.csv", "r", errors="ignore") as raw_data:
         reader = csv.DictReader(raw_data)
         dict_list = []
@@ -250,7 +262,7 @@ if __name__ == '__main__':
             if product_dict["Name"] == product:
                 product_dictionary[product].total_revenue += float(product_dict["Earnings"])
                 product_dictionary[product].total_count += int(product_dict["Quantity"])
-                if product_dict["Date"][0:7] == "2021-11" or product_dict["Date"][3:10] == "11/2021":
+                if product_dict["Date"][0:7] == current_date_1 or product_dict["Date"][3:10] == current_date_2:
                     product_dictionary[product].monthly_revenue += float(product_dict["Earnings"])
                     product_dictionary[product].monthly_count += int(product_dict["Quantity"])
                 if product_dict["Earnings"] == "0":
@@ -278,4 +290,4 @@ if __name__ == '__main__':
             else:
                 pass
     print("Processing...")
-    excel_output(product_dictionary)
+    excel_output(product_dictionary, date_month, date_year)
