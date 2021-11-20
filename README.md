@@ -4,6 +4,12 @@ By Omer Golan-Joel golan2072@gmail.com
 
 Changelog:
 
+1.0 - November 20th, 2021
+Final program.
+Imputs current month and year.
+Expresses month and year in both filename and inside the spreadsheet.
+Can calculate sales in past months.
+
 0.9 - November 19th, 2021
 Complete program - generates the desrired monthly sales report.
 Still lacking (command line) interface elements.
