@@ -2,6 +2,8 @@
 DriveThruRPG CSV sales report analyzer
 By Omer Golan-Joel golan2072@gmail.com
 
+NOTE THAT THIS PROGRAM USES A DATABASE WHICH IS NOT INCLUDED HERE FOR COMMERCIAL CONFIDENTIALITY REASONS.
+
 Changelog:
 
 1.0 - November 20th, 2021
